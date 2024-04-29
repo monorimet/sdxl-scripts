@@ -4,7 +4,7 @@
 
 set -xeu
 
-iree-compile $PWD/base_ir/stable_diffusion_xl_base_1_0_PNDM_64_1024x1024_fp16_unet_30_hip.mlir \
+iree-compile $PWD/../base_ir/stable_diffusion_xl_base_1_0_PNDM_64_1024x1024_fp16_unet_30_hip.mlir \
     --iree-hal-target-backends=rocm \
     --iree-rocm-target-chip=gfx942 \
     --iree-rocm-bc-dir=$PWD/../bitcode-2024-03-07 \
@@ -28,8 +28,8 @@ iree-compile $PWD/base_ir/stable_diffusion_xl_base_1_0_PNDM_64_1024x1024_fp16_un
     --iree-hal-dump-executable-benchmarks-to=benchmarks/scheduled_unet \
     --iree-opt-splat-parameter-file=tmp/splat_scheduled_unet.irpa \
     --iree-preprocessing-pass-pipeline="builtin.module(iree-preprocessing-transpose-convolution-pipeline, iree-preprocessing-pad-to-intrinsics)" \
-    --iree-codegen-transform-dialect-library=$PWD/specs/attention_and_matmul_spec.mlir \
-    -o $PWD/tmp/sdxl_scheduled_unet.vmfb "$@"
+    --iree-codegen-transform-dialect-library=$PWD/../specs/attention_and_matmul_spec.mlir \
+    -o $PWD/../tmp/sdxl_scheduled_unet.vmfb "$@"
     #--iree-hal-benchmark-dispatch-repeat-count=20 \
     #--iree-hal-executable-debug-level=3 \
     #--iree-vulkan-target-triple=rdna3-unknown-linux \
