@@ -48,7 +48,7 @@ ARG ROCM_CHIP=gfx942
 # Check out SDXL scripts and build model
 RUN git clone --depth=1 https://github.com/monorimet/sdxl-scripts -b gfx942-iree-sdxl && cd sdxl-scripts && ./compile-txt2img.sh
 
-RUN cd sdxl-scripts/tensile && ./compile-scheduled-unet-tensile.sh
+RUN cd sdxl-scripts/tensile && chmod +x ./compile-scheduled-unet-tensile.sh && ./compile-scheduled-unet-tensile.sh
 
 WORKDIR /home/${DOCKER_USERNAME}/sdxl-scripts
 ENTRYPOINT /bin/bash
