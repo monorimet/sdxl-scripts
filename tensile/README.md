@@ -19,7 +19,7 @@ python ./kernel.py --output=./tensile_module_3.mlir -d ./output_2048x1280x5120
 ### Rewrite the model IR with kernel injections.
 
 ```
-python ./rewriter.py --m ./tensile_s_unet_1.mlir ./tensile_s_unet_2.mlir ./tensile_s_unet_3.mlir ./tensile_s_unet_4.mlir ./tensile_s_unet_5.mlir -o out.mlir --input_file ./stable_diffusion_xl_base_1_0_PNDM_64_1024x1024_fp16_unet_30.mlir
+python ./rewriter.py --m ./tensile_s_unet_1.mlir ./tensile_s_unet_2.mlir ./tensile_s_unet_3.mlir ./tensile_s_unet_4.mlir ./tensile_s_unet_5.mlir -o out.mlir --input_file ../base-ir/stable_diffusion_xl_base_1_0_PNDM_64_1024x1024_fp16_unet_30.mlir
 ```
 
 
