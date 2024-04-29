@@ -1,0 +1,91 @@
+diff --git a/tensilelite/Tensile/Source/lib/include/Tensile/KernelArguments.hpp b/tensilelite/Tensile/Source/lib/include/Tensile/KernelArguments.hpp
+index 02a4c4c1..943a5686 100644
+--- a/tensilelite/Tensile/Source/lib/include/Tensile/KernelArguments.hpp
++++ b/tensilelite/Tensile/Source/lib/include/Tensile/KernelArguments.hpp
+@@ -31,6 +31,7 @@
+ #include <string>
+ #include <unordered_map>
+ #include <vector>
++#include <type_traits>
+ 
+ #include <Tensile/DataTypes.hpp>
+ #include <Tensile/Macros.hpp>
+@@ -197,6 +198,7 @@ namespace Tensile
+         const_iterator end() const;
+ 
+         void useExternalPointer(void* pointer, size_t size);
++        std::vector<std::pair<std::string, int>> iree_args;
+ 
+     private:
+         enum
+@@ -361,6 +363,18 @@ namespace Tensile
+             appendRecord(name, Arg(offset, size, bound, valueString));
+         }
+ 
++        static int argNo = 0;
++        int newValue;
++        if constexpr(std::is_pointer_v<T>)
++          newValue = 0;
++        else
++          newValue = static_cast<int>(value);
++        std::string newName = name;
++        if (name == "") {
++          newName = "arg" + std::to_string(argNo++);
++        }
++        iree_args.push_back(std::make_pair(newName, newValue));
++
+         m_data.insert(m_data.end(), sizeof(value), 0);
+         writeValue(offset, value);
+     }
+diff --git a/tensilelite/Tensile/Source/lib/include/Tensile/hip/HipSolutionAdapter.hpp b/tensilelite/Tensile/Source/lib/include/Tensile/hip/HipSolutionAdapter.hpp
+index 86b24b4d..de2bc139 100644
+--- a/tensilelite/Tensile/Source/lib/include/Tensile/hip/HipSolutionAdapter.hpp
++++ b/tensilelite/Tensile/Source/lib/include/Tensile/hip/HipSolutionAdapter.hpp
+@@ -95,6 +95,7 @@ namespace Tensile
+ 
+             std::vector<std::string>        m_loadedModuleNames;
+             std::unordered_set<std::string> m_loadedCOFiles;
++            std::unordered_set<std::string> iree_processed_kernels;
+ 
+             friend std::ostream& operator<<(std::ostream& stream, SolutionAdapter const& adapter);
+         };
+diff --git a/tensilelite/Tensile/Source/lib/source/hip/HipSolutionAdapter.cpp b/tensilelite/Tensile/Source/lib/source/hip/HipSolutionAdapter.cpp
+index 6850c7b6..a3fa757d 100644
+--- a/tensilelite/Tensile/Source/lib/source/hip/HipSolutionAdapter.cpp
++++ b/tensilelite/Tensile/Source/lib/source/hip/HipSolutionAdapter.cpp
+@@ -28,6 +28,7 @@
+ #include <hip/hip_runtime.h>
+ 
+ #include <cstddef>
++#include <fstream>
+ 
+ #include <Tensile/Debug.hpp>
+ #include <Tensile/EmbeddedData.hpp>
+@@ -298,6 +299,27 @@ namespace Tensile
+                           << kernel.numWorkItems << std::endl;
+                 std::cout << kernel.args;
+             }
++            static int count = 0;
++            if (iree_processed_kernels.find(kernel.kernelName) == iree_processed_kernels.end()) {
++              iree_processed_kernels.insert(kernel.kernelName);
++              std::stringstream ss;
++              std::string file_name = "/home/harmenon/hipblaslt_experiments/metadata/kernel" + std::to_string(count++) + ".txt";
++              std::ofstream ofs(file_name);
++              if (ofs.is_open()) {
++                 ss << kernel.kernelName << "\n";
++                 for (const auto & [name, value] : kernel.args.iree_args) {
++                   ss << name << "," << value << "\n";
++                 }
++                 ss << "numWorkItems" << "," << kernel.numWorkItems.x << "," << kernel.numWorkItems.y << "," << kernel.numWorkItems.z << "\n";
++                 ss << "workgroupSize" << "," << kernel.workGroupSize.x << "," << kernel.workGroupSize.y << "," << kernel.workGroupSize.z << "\n";
++                 ss << "sharedMemBytes" << "," << kernel.sharedMemBytes << "\n";
++                 ss << "kernelArgsSize" << "," << kernel.args.size() << "\n";
++                 ofs << ss.str();
++                 ofs.close();
++              } else {
++                 std::cout << "Failed to create file " << file_name << "\n";
++              }
++            }
+             if(m_debugSkipLaunch)
+             {
+                 std::cout << "DEBUG: Skip kernel execution" << std::endl;
