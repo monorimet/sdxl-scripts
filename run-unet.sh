@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: PATH=/path/to/iree/build/tools:$PATH ./benchmark-unet.sh N
+# Usage: PATH=/path/to/iree/build/tools:$PATH ./run-unet.sh N
 
 set -xeu
 
@@ -11,16 +11,15 @@ fi
 
 IRPA_PATH_PREFIX="${2:-/data/shark}"
 
-iree-benchmark-module \
+iree-run-module \
   --device=rocm://$1 \
   --device_allocator=caching \
-  --module=$PWD/tmp/sdxl_scheduled_unet.vmfb \
+  --module=$PWD/tmp/sdxl_unet.vmfb \
   --parameters=model=${IRPA_PATH_PREFIX}/scheduled_unet.irpa \
-  --function=run_forward \
+  --function=main \
   --input=1x4x128x128xf16 \
+  --input=1xi64 \
   --input=2x64x2048xf16 \
   --input=2x1280xf16 \
   --input=2x6xf16 \
-  --input=1xf16 \
-  --input=1xi64 \
-  --benchmark_repetitions=3
+  --input=1xf16

@@ -4,18 +4,14 @@
 
 set -xeu
 
-if (( $# != 1 )); then
-  echo "usage: $0 <target-chip>"
-  exit 1
-fi
-
-$PWD/compile-clip.sh $1
-$PWD/compile-scheduled-unet.sh $1
-$PWD/compile-vae.sh $1
+$PWD/compile-clip.sh
+$PWD/compile-scheduled-unet.sh
+$PWD/compile-vae.sh
 
 iree-compile $PWD/base_ir/sdxl_pipeline_bench_f16.mlir \
     --iree-hal-target-backends=rocm \
-    --iree-rocm-target-chip=$1 \
+    --iree-rocm-target-chip=gfx942 \
+    --iree-rocm-link-bc=true \
     --iree-rocm-bc-dir=$PWD/bitcode-2024-03-07 \
     --iree-global-opt-propagate-transposes=true \
     --iree-codegen-llvmgpu-use-vector-distribution \
@@ -23,7 +19,8 @@ iree-compile $PWD/base_ir/sdxl_pipeline_bench_f16.mlir \
     --iree-rocm-waves-per-eu=2 \
     --iree-opt-outer-dim-concat=true \
     --iree-llvmgpu-enable-prefetch \
-    -o $PWD/tmp/full_pipeline.vmfb
+    --iree-codegen-log-swizzle-tile=4 \
+    -o $PWD/tmp/sdxl_txt2img.vmfb "$@"
     #--iree-hal-benchmark-dispatch-repeat-count=20 \
     #--iree-hal-executable-debug-level=3 \
     #--iree-vulkan-target-triple=rdna3-unknown-linux \

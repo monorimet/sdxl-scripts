@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: PATH=/path/to/iree/build/tools:$PATH ./benchmark-clip.sh N
+# Usage: PATH=/path/to/iree/build/tools:$PATH ./run-clip.sh N
 
 set -xeu
 
@@ -11,7 +11,7 @@ fi
 
 IRPA_PATH_PREFIX="${2:-/data/shark}"
 
-iree-benchmark-module \
+iree-run-module \
   --device=rocm://$1 \
   --device_allocator=caching \
   --module=$PWD/tmp/sdxl_clip.vmfb \
@@ -21,4 +21,4 @@ iree-benchmark-module \
   --input=1x64xi64 \
   --input=1x64xi64 \
   --input=1x64xi64 \
-  --benchmark_repetitions=3
+  --device_allocator=caching

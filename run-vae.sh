@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: PATH=/path/to/iree/build/tools:$PATH ./benchmark-vae.sh N
+# Usage: PATH=/path/to/iree/build/tools:$PATH ./run-vae.sh N
 
 set -xeu
 
@@ -11,11 +11,11 @@ fi
 
 IRPA_PATH_PREFIX="${2:-/data/shark}"
 
-iree-benchmark-module \
+iree-run-module \
   --device=rocm://$1 \
   --device_allocator=caching \
   --module=$PWD/tmp/sdxl_vae_decode.vmfb \
   --parameters=model=${IRPA_PATH_PREFIX}/vae_decode.irpa \
   --function=main \
   --input=1x4x128x128xf16 \
-  --benchmark_repetitions=3
+  --device_allocator=caching
