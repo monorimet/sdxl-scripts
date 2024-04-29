@@ -32,8 +32,8 @@ USER ${DOCKER_USERNAME}
 WORKDIR /home/${DOCKER_USERNAME}
 
 # Checkout and build IREE
-RUN git clone --depth=1 https://github.com/openxla/iree.git -b sdxl && \
-  cd iree && git cherry-pick e29eaf3ff2598d520923813208b495b8d08a2237 && git cherry-pick 4c55954386f3dae04d863fb6b7e1e0e952c4f939 && git submodule update --init --depth=1
+RUN git clone --depth=1 https://github.com/openxla/iree.git -b sdxl-tensile && \
+  cd iree && git submodule update --init --depth=1
 RUN cd iree && cmake -S . -B build-release \
   -G Ninja -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_C_COMPILER=`which clang` -DCMAKE_CXX_COMPILER=`which clang++` \

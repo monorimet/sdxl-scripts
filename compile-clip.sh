@@ -7,7 +7,6 @@ set -xeu
 iree-compile $PWD/base_ir/stable_diffusion_xl_base_1_0_64_fp16_prompt_encoder.mlir \
     --iree-hal-target-backends=rocm \
     --iree-rocm-target-chip=gfx942 \
-    --iree-rocm-link-bc=true \
     --iree-rocm-bc-dir=$PWD/bitcode-2024-03-07 \
     --iree-global-opt-propagate-transposes=true \
     --iree-opt-outer-dim-concat=true \

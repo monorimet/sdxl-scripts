@@ -5,7 +5,7 @@
 set -xeu
 
 $PWD/compile-clip.sh
-$PWD/compile-scheduled-unet.sh
+$PWD/tensile/compile-scheduled-unet-tensile.sh
 $PWD/compile-vae.sh
 
 iree-compile $PWD/base_ir/sdxl_pipeline_bench_f16.mlir \
