@@ -35,7 +35,7 @@ WORKDIR /home/${DOCKER_USERNAME}
 RUN python3 -m pip install pybind11 nanobind numpy
 
 # Checkout and build IREE
-RUN git clone --depth=1 https://github.com/openxla/iree.git && \
+RUN git clone --depth=1 https://github.com/iree-org/iree.git && \
   cd iree && git submodule update --init --depth=1
 RUN cd iree && cmake -S . -B build-release \
   -G Ninja -DCMAKE_BUILD_TYPE=Release \
