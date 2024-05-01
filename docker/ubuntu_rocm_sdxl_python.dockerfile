@@ -13,7 +13,7 @@ ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 # Basic development environment
 RUN apt-get update && apt-get install -y \
   software-properties-common git \
-  build-essential cmake ninja-build clang lld vim python3.10-venv python3.10-dev && \
+  build-essential cmake ninja-build clang lld vim python3.10-dev && \
   apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set up mirror user account
@@ -32,9 +32,7 @@ fi
 USER ${DOCKER_USERNAME}
 WORKDIR /home/${DOCKER_USERNAME}
 
-RUN python3 -m venv turb.env && \
-  source turb.env/bin/activate && \
-  pip install pybind11 nanobind numpy
+RUN python3 -m pip install pybind11 nanobind numpy
 
 # Checkout and build IREE
 RUN git clone --depth=1 https://github.com/openxla/iree.git && \
