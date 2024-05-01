@@ -16,23 +16,8 @@ RUN apt-get update && apt-get install -y \
   build-essential cmake ninja-build clang lld vim python3.10-dev && \
   apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Set up mirror user account
-ARG DOCKER_USERID=0
-ARG DOCKER_GROUPID=0
-ARG DOCKER_USERNAME=mirror
-ARG DOCKER_GROUPNAME=mirror
-RUN if [ ${DOCKER_USERID} -ne 0 ] && [ ${DOCKER_GROUPID} -ne 0 ]; then \
-    groupadd --gid ${DOCKER_GROUPID} ${DOCKER_GROUPNAME} && \
-    useradd --no-log-init --create-home \
-      --uid ${DOCKER_USERID} --gid ${DOCKER_GROUPID} \
-      --shell /usr/bin/zsh ${DOCKER_USERNAME}; \
-fi
-
-# Now switch to the mirror user home directory
-USER ${DOCKER_USERNAME}
-WORKDIR /home/${DOCKER_USERNAME}
-
-RUN python3 -m pip install pybind11 nanobind numpy
+RUN python3 -m pip install --upgrade pip && \
+  pip install pybind11 nanobind numpy
 
 # Checkout and build IREE
 RUN git clone --depth=1 https://github.com/iree-org/iree.git && \
@@ -44,20 +29,25 @@ RUN cd iree && cmake -S . -B build-release \
   -DIREE_EXTERNAL_HAL_DRIVERS="rocm" \
   -DIREE_BUILD_PYTHON_BINDINGS=ON \
   -DPython3_EXECUTABLE="$(which python3)" && \
-  cmake --build build-release/ --target tools/all
+  cmake --build build-release/ --target tools/all && \
+  cmake --build build-release/ --target install
 
 # Make IREE tools discoverable in PATH
-ENV PATH=/home/${DOCKER_USERNAME}/iree/build-release/tools:$PATH
+ENV PATH=/iree/build-release/tools:$PATH
+ENV PYTHONPATH=/iree/build-release/runtime/bindings/python:/iree/build-release/compiler/bindings/python
 
 ARG ROCM_CHIP=gfx942
 # Check out SDXL scripts and build model
 RUN git clone --depth=1 https://github.com/monorimet/sdxl-scripts && cd sdxl-scripts && ./compile-txt2img.sh ${ROCM_CHIP}
 
 RUN git clone https://github.com/iree-org/iree-turbine && \
-  cd iree-turbine && pip install -r requirements.txt -e .
-
+  cd iree-turbine && \
+  pip install -r requirements.txt .
+  
 RUN git clone https://github.com/nod-ai/SHARK-Turbine -b ean-sdxl-fixes && \
-  cd SHARK-Turbine && pip install -e models -r models/requirements.txt
+  cd SHARK-Turbine && \
+  pip install --pre --upgrade -e models -r models/requirements.txt && \
+  pip uninstall iree-compiler iree-runtime -y
 
-WORKDIR /home/${DOCKER_USERNAME}/sdxl-scripts
+WORKDIR /sdxl-scripts
 ENTRYPOINT /bin/bash
