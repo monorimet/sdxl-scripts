@@ -11,7 +11,7 @@ batch_count="$3"
 device="$4"
 weights_path="$5"
 
-python /home/eagarvey/sdxl/SHARK-Turbine/models/turbine_models/custom_models/sdxl_inference/sdxl_compiled_pipeline.py \
+python3 ../SHARK-Turbine/models/turbine_models/custom_models/sdxl_inference/sdxl_compiled_pipeline.py \
   --precision=fp16 \
   --external_weights=irpa \
   --device=rocm \
