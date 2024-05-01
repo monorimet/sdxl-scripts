@@ -1,7 +1,7 @@
 # Build with `docker build . -t sdxl-turbine --build-arg DOCKER_USERID=$(id -u) --build-arg DOCKER_GROUPID=$(id -g) ./ubuntu_rocm_sdxl_python.dockerfile`
 # Run with `docker run -it --rm --network=host --device=/dev/kfd --device=/dev/dri --group-add video --group-add $(getent group render | cut -d: -f3) --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v /path/to/downloaded/sdxl/weights:/weights sdxl-turbine'
 # To benchmark inside docker: `./benchmark-txt2img.sh N /weights`
-# To run python txt2img: `./run-txt2img-python.sh N /weights`
+# To run python txt2img: `./run-txt2img-python.sh <prompt> <negative_prompt> <batch_count> <device_num> /weights`
 
 FROM rocm/dev-ubuntu-22.04
 
