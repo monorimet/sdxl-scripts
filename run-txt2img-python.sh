@@ -24,4 +24,12 @@ python3 ../SHARK-Turbine/models/turbine_models/custom_models/sdxl_inference/sdxl
   --attn_spec=default  \
   --batch_count=$batch_count \
   --prompt=$prompt \
-  --negative_prompt=$neg_prompt
+  --negative_prompt=$neg_prompt | tee output.txt
+
+grep -oE '[^/]+\.png' output.txt > filenames.txt
+
+readarray -t filenames < filenames.txt
+
+for filename in $filenames; do
+    mv "$filename" /gen_imgs
+done
