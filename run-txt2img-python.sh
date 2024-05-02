@@ -23,7 +23,7 @@ python3 ../SHARK-Turbine/models/turbine_models/custom_models/sdxl_inference/sdxl
   $weights_path \
   --attn_spec=default  \
   $batch_count \
-  $4 | tee output.txt
+  $@ | tee output.txt
 
 grep -oE '[^/]+\.png' output.txt > filenames.txt
 
